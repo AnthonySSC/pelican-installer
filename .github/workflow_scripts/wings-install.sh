@@ -4,7 +4,7 @@ set -e
 
 ######################################################################################
 #                                                                                    #
-# Project 'pterodactyl-installer'                                                    #
+# Project 'pelican-installer'                                                        #
 #                                                                                    #
 # Copyright (C) 2018 - 2024, Vilhelm Prytz, <vilhelm@prytznet.se>                    #
 #                                                                                    #
@@ -21,15 +21,15 @@ set -e
 #   You should have received a copy of the GNU General Public License                #
 #   along with this program.  If not, see <https://www.gnu.org/licenses/>.           #
 #                                                                                    #
-# https://github.com/pterodactyl-installer/pterodactyl-installer/blob/master/LICENSE #
+# https://github.com/AnthonySSC/pelican-installer/blob/main/LICENSE                  #
 #                                                                                    #
-# This script is not associated with the official Pterodactyl Project.               #
-# https://github.com/pterodactyl-installer/pterodactyl-installer                     #
+# This script is not associated with the official Pelican Project.                   #
+# https://github.com/AnthonySSC/pelican-installer                                    #
 #                                                                                    #
 ######################################################################################
 
-export GITHUB_SOURCE="master"
-export GITHUB_BASE_URL="https://raw.githubusercontent.com/pterodactyl-installer/pterodactyl-installer"
+export GITHUB_SOURCE="main"
+export GITHUB_BASE_URL="https://raw.githubusercontent.com/AnthonySSC/pelican-installer"
 export CONFIGURE_FIREWALL=true
 export CONFIGURE_DBHOST=true
 export INSTALL_MARIADB=true

@@ -4,7 +4,7 @@ set -e
 
 ######################################################################################
 #                                                                                    #
-# Project 'pterodactyl-installer'                                                    #
+# Project 'pelican-installer'                                                        #
 #                                                                                    #
 # Copyright (C) 2018 - 2024, Vilhelm Prytz, <vilhelm@prytznet.se>                    #
 #                                                                                    #
@@ -21,10 +21,10 @@ set -e
 #   You should have received a copy of the GNU General Public License                #
 #   along with this program.  If not, see <https://www.gnu.org/licenses/>.           #
 #                                                                                    #
-# https://github.com/pterodactyl-installer/pterodactyl-installer/blob/master/LICENSE #
+# https://github.com/AnthonySSC/pelican-installer/blob/main/LICENSE                  #
 #                                                                                    #
-# This script is not associated with the official Pterodactyl Project.               #
-# https://github.com/pterodactyl-installer/pterodactyl-installer                     #
+# This script is not associated with the official Pelican Project.                   #
+# https://github.com/AnthonySSC/pelican-installer                                    #
 #                                                                                    #
 ######################################################################################
 
@@ -36,8 +36,8 @@ if ! fn_exists lib_loaded; then
   ! fn_exists lib_loaded && echo "* ERROR: Could not load lib script" && exit 1
 fi
 
-CHECKIP_URL="https://checkip.pterodactyl-installer.se"
-DNS_SERVER="8.8.8.8"
+CHECKIP_URL="https://api.ipify.org/"
+DNS_SERVER="1.1.1.1"
 
 # exit with error status code if user is not root
 if [[ $EUID -ne 0 ]]; then
@@ -73,7 +73,7 @@ dep_install() {
 
 confirm() {
   output "This script will perform a HTTPS request to the endpoint $CHECKIP_URL"
-  output "The official check-IP service for this script, https://checkip.pterodactyl-installer.se"
+  output "The official check-IP service for this script, https://api.ipify.org/"
   output "- will not log or share any IP-information with any third-party."
   output "If you would like to use another service, feel free to modify the script."
 

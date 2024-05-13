@@ -4,7 +4,7 @@ set -e
 
 ######################################################################################
 #                                                                                    #
-# Project 'pterodactyl-installer'                                                    #
+# Project 'pelican-installer'                                                        #
 #                                                                                    #
 # Copyright (C) 2018 - 2024, Vilhelm Prytz, <vilhelm@prytznet.se>                    #
 #                                                                                    #
@@ -21,10 +21,10 @@ set -e
 #   You should have received a copy of the GNU General Public License                #
 #   along with this program.  If not, see <https://www.gnu.org/licenses/>.           #
 #                                                                                    #
-# https://github.com/pterodactyl-installer/pterodactyl-installer/blob/master/LICENSE #
+# https://github.com/AnthonySSC/pelican-installer/blob/main/LICENSE                  #
 #                                                                                    #
-# This script is not associated with the official Pterodactyl Project.               #
-# https://github.com/pterodactyl-installer/pterodactyl-installer                     #
+# This script is not associated with the official Pelican Project.                   #
+# https://github.com/AnthonySSC/pelican-installer                                    #
 #                                                                                    #
 ######################################################################################
 
@@ -53,7 +53,7 @@ export EMAIL=""
 export CONFIGURE_DBHOST=false
 export CONFIGURE_DB_FIREWALL=false
 export MYSQL_DBHOST_HOST="127.0.0.1"
-export MYSQL_DBHOST_USER="pterodactyluser"
+export MYSQL_DBHOST_USER="pelicanuser"
 export MYSQL_DBHOST_PASSWORD=""
 
 # ------------ User input functions ------------ #
@@ -115,8 +115,8 @@ ask_database_firewall() {
 
 main() {
   # check if we can detect an already existing installation
-  if [ -d "/etc/pterodactyl" ]; then
-    warning "The script has detected that you already have Pterodactyl wings on your system! You cannot run the script multiple times, it will fail!"
+  if [ -d "/etc/pelican" ]; then
+    warning "The script has detected that you already have Pelican wings on your system! You cannot run the script multiple times, it will fail!"
     echo -e -n "* Are you sure you want to proceed? (y/N): "
     read -r CONFIRM_PROCEED
     if [[ ! "$CONFIRM_PROCEED" =~ [Yy] ]]; then
@@ -134,7 +134,7 @@ main() {
   echo "* as well as Wings itself. But it's still required to create the node"
   echo "* on the panel and then place the configuration file on the node manually after"
   echo "* the installation has finished. Read more about this process on the"
-  echo "* official documentation: $(hyperlink 'https://pterodactyl.io/wings/1.0/installing.html#configure')"
+  echo "* official documentation: $(hyperlink 'https://pelican.dev/docs/wings/optional-config')"
   echo "* "
   echo -e "* ${COLOR_RED}Note${COLOR_NC}: this script will not start Wings automatically (will install systemd service, not start it)."
   echo -e "* ${COLOR_RED}Note${COLOR_NC}: this script will not enable swap (for docker)."
@@ -153,7 +153,7 @@ main() {
 
     MYSQL_DBHOST_USER="-"
     while [[ "$MYSQL_DBHOST_USER" == *"-"* ]]; do
-      required_input MYSQL_DBHOST_USER "Database host username (pterodactyluser): " "" "pterodactyluser"
+      required_input MYSQL_DBHOST_USER "Database host username (pelicanuser): " "" "pelicanuser"
       [[ "$MYSQL_DBHOST_USER" == *"-"* ]] && error "Database user cannot contain hyphens"
     done
 
@@ -211,9 +211,9 @@ function goodbye {
   echo "* Wings installation completed"
   echo "*"
   echo "* To continue, you need to configure Wings to run with your panel"
-  echo "* Please refer to the official guide, $(hyperlink 'https://pterodactyl.io/wings/1.0/installing.html#configure')"
+  echo "* Please refer to the official guide, $(hyperlink 'https://pelican.dev/docs/wings/optional-config')"
   echo "* "
-  echo "* You can either copy the configuration file from the panel manually to /etc/pterodactyl/config.yml"
+  echo "* You can either copy the configuration file from the panel manually to /etc/pelican/config.yml"
   echo "* or, you can use the \"auto deploy\" button from the panel and simply paste the command in this terminal"
   echo "* "
   echo "* You can then start Wings manually to verify that it's working"

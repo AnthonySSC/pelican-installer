@@ -4,7 +4,7 @@ set -e
 
 ######################################################################################
 #                                                                                    #
-# Project 'pterodactyl-installer'                                                    #
+# Project 'pelican-installer'                                                        #
 #                                                                                    #
 # Copyright (C) 2018 - 2024, Vilhelm Prytz, <vilhelm@prytznet.se>                    #
 #                                                                                    #
@@ -21,10 +21,10 @@ set -e
 #   You should have received a copy of the GNU General Public License                #
 #   along with this program.  If not, see <https://www.gnu.org/licenses/>.           #
 #                                                                                    #
-# https://github.com/pterodactyl-installer/pterodactyl-installer/blob/master/LICENSE #
+# https://github.com/AnthonySSC/pelican-installer/blob/main/LICENSE                  #
 #                                                                                    #
-# This script is not associated with the official Pterodactyl Project.               #
-# https://github.com/pterodactyl-installer/pterodactyl-installer                     #
+# This script is not associated with the official Pelican Project.                   #
+# https://github.com/AnthonySSC/pelican-installer                                    #
 #                                                                                    #
 ######################################################################################
 
@@ -45,11 +45,11 @@ RM_WINGS="${RM_WINGS:-true}"
 
 rm_panel_files() {
   output "Removing panel files..."
-  rm -rf /var/www/pterodactyl /usr/local/bin/composer
-  [ "$OS" != "centos" ] && unlink /etc/nginx/sites-enabled/pterodactyl.conf
-  [ "$OS" != "centos" ] && rm -f /etc/nginx/sites-available/pterodactyl.conf
+  rm -rf /var/www/pelican /usr/local/bin/composer
+  [ "$OS" != "centos" ] && unlink /etc/nginx/sites-enabled/pelican.conf
+  [ "$OS" != "centos" ] && rm -f /etc/nginx/sites-available/pelican.conf
   [ "$OS" != "centos" ] && ln -s /etc/nginx/sites-available/default /etc/nginx/sites-enabled/default
-  [ "$OS" == "centos" ] && rm -f /etc/nginx/conf.d/pterodactyl.conf
+  [ "$OS" == "centos" ] && rm -f /etc/nginx/conf.d/pelican.conf
   systemctl restart nginx
   success "Removed panel files."
 }
@@ -69,14 +69,14 @@ rm_wings_files() {
   systemctl disable --now wings
   rm -rf /etc/systemd/system/wings.service
 
-  rm -rf /etc/pterodactyl /usr/local/bin/wings /var/lib/pterodactyl
+  rm -rf /etc/pelican /usr/local/bin/wings /var/lib/pelican
   success "Removed wings files."
 }
 
 rm_services() {
   output "Removing services..."
-  systemctl disable --now pteroq
-  rm -rf /etc/systemd/system/pteroq.service
+  systemctl disable --now pelican
+  rm -rf /etc/systemd/system/pelican.service
   case "$OS" in
   debian | ubuntu)
     systemctl disable --now redis-server
@@ -84,7 +84,7 @@ rm_services() {
   centos)
     systemctl disable --now redis
     systemctl disable --now php-fpm
-    rm -rf /etc/php-fpm.d/www-pterodactyl.conf
+    rm -rf /etc/php-fpm.d/www-pelican.conf
     ;;
   esac
   success "Removed services."
@@ -92,7 +92,7 @@ rm_services() {
 
 rm_cron() {
   output "Removing cron jobs..."
-  crontab -l | grep -vF "* * * * * php /var/www/pterodactyl/artisan schedule:run >> /dev/null 2>&1" | crontab -
+  crontab -l | grep -vF "* * * * * php /var/www/pelican/artisan schedule:run >> /dev/null 2>&1" | crontab -
   success "Removed cron jobs."
 }
 
@@ -101,7 +101,7 @@ rm_database() {
   valid_db=$(mariadb -u root -e "SELECT schema_name FROM information_schema.schemata;" | grep -v -E -- 'schema_name|information_schema|performance_schema|mysql')
   warning "Be careful! This database will be deleted!"
   if [[ "$valid_db" == *"panel"* ]]; then
-    echo -n "* Database called panel has been detected. Is it the pterodactyl database? (y/N): "
+    echo -n "* Database called panel has been detected. Is it the pelican database? (y/N): "
     read -r is_panel
     if [[ "$is_panel" =~ [Yy] ]]; then
       DATABASE=panel
@@ -125,11 +125,11 @@ rm_database() {
   output "Removing database user..."
   valid_users=$(mariadb -u root -e "SELECT user FROM mysql.user;" | grep -v -E -- 'user|root')
   warning "Be careful! This user will be deleted!"
-  if [[ "$valid_users" == *"pterodactyl"* ]]; then
-    echo -n "* User called pterodactyl has been detected. Is it the pterodactyl user? (y/N): "
+  if [[ "$valid_users" == *"pelican"* ]]; then
+    echo -n "* User called pelican has been detected. Is it the pelican user? (y/N): "
     read -r is_user
     if [[ "$is_user" =~ [Yy] ]]; then
-      DB_USER=pterodactyl
+      DB_USER=pelican
     else
       print_list "$valid_users"
     fi

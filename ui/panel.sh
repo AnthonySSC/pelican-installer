@@ -4,7 +4,7 @@ set -e
 
 ######################################################################################
 #                                                                                    #
-# Project 'pterodactyl-installer'                                                    #
+# Project 'pelican-installer'                                                        #
 #                                                                                    #
 # Copyright (C) 2018 - 2024, Vilhelm Prytz, <vilhelm@prytznet.se>                    #
 #                                                                                    #
@@ -21,10 +21,10 @@ set -e
 #   You should have received a copy of the GNU General Public License                #
 #   along with this program.  If not, see <https://www.gnu.org/licenses/>.           #
 #                                                                                    #
-# https://github.com/pterodactyl-installer/pterodactyl-installer/blob/master/LICENSE #
+# https://github.com/AnthonySSC/pelican-installer/blob/main/LICENSE                  #
 #                                                                                    #
-# This script is not associated with the official Pterodactyl Project.               #
-# https://github.com/pterodactyl-installer/pterodactyl-installer                     #
+# This script is not associated with the official Pelican Project.                   #
+# https://github.com/AnthonySSC/pelican-installer                                    #
 #                                                                                    #
 ######################################################################################
 
@@ -53,8 +53,6 @@ export email=""
 # Initial admin account
 export user_email=""
 export user_username=""
-export user_firstname=""
-export user_lastname=""
 export user_password=""
 
 # Assume SSL, will fetch different config if true
@@ -102,8 +100,8 @@ check_FQDN_SSL() {
 
 main() {
   # check if we can detect an already existing installation
-  if [ -d "/var/www/pterodactyl" ]; then
-    warning "The script has detected that you already have Pterodactyl panel on your system! You cannot run the script multiple times, it will fail!"
+  if [ -d "/var/www/pelican" ]; then
+    warning "The script has detected that you already have Pelican panel on your system! You cannot run the script multiple times, it will fail!"
     echo -e -n "* Are you sure you want to proceed? (y/N): "
     read -r CONFIRM_PROCEED
     if [[ ! "$CONFIRM_PROCEED" =~ [Yy] ]]; then
@@ -132,7 +130,7 @@ main() {
 
   MYSQL_USER="-"
   while [[ "$MYSQL_USER" == *"-"* ]]; do
-    required_input MYSQL_USER "Database username (pterodactyl): " "" "pterodactyl"
+    required_input MYSQL_USER "Database username (pelican): " "" "pelican"
     [[ "$MYSQL_USER" == *"-"* ]] && error "Database user cannot contain hyphens"
   done
 
@@ -144,20 +142,18 @@ main() {
   output "List of valid timezones here $(hyperlink "https://www.php.net/manual/en/timezones.php")"
 
   while [ -z "$timezone" ]; do
-    echo -n "* Select timezone [Europe/Stockholm]: "
+    echo -n "* Select timezone [America/New_York]: "
     read -r timezone_input
 
     array_contains_element "$timezone_input" "${valid_timezones[@]}" && timezone="$timezone_input"
-    [ -z "$timezone_input" ] && timezone="Europe/Stockholm" # because köttbullar!
+    [ -z "$timezone_input" ] && timezone="America/New_York"
   done
 
-  email_input email "Provide the email address that will be used to configure Let's Encrypt and Pterodactyl: " "Email cannot be empty or invalid"
+  email_input email "Provide the email address that will be used to configure Let's Encrypt and Pelican: " "Email cannot be empty or invalid"
 
   # Initial admin account
   email_input user_email "Email address for the initial admin account: " "Email cannot be empty or invalid"
   required_input user_username "Username for the initial admin account: " "Username cannot be empty"
-  required_input user_firstname "First name for the initial admin account: " "Name cannot be empty"
-  required_input user_lastname "Last name for the initial admin account: " "Name cannot be empty"
   password_input user_password "Password for the initial admin account: " "Password cannot be empty"
 
   print_brake 72
@@ -202,7 +198,7 @@ main() {
 
 summary() {
   print_brake 62
-  output "Pterodactyl panel $PTERODACTYL_PANEL_VERSION with nginx on $OS"
+  output "Pelican panel $PELICAN_PANEL_VERSION with nginx on $OS"
   output "Database name: $MYSQL_DB"
   output "Database user: $MYSQL_USER"
   output "Database password: (censored)"
@@ -210,8 +206,6 @@ summary() {
   output "Email: $email"
   output "User email: $user_email"
   output "Username: $user_username"
-  output "First name: $user_firstname"
-  output "Last name: $user_lastname"
   output "User password: (censored)"
   output "Hostname/FQDN: $FQDN"
   output "Configure Firewall? $CONFIGURE_FIREWALL"

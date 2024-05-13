@@ -4,7 +4,7 @@ set -e
 
 ######################################################################################
 #                                                                                    #
-# Project 'pterodactyl-installer'                                                    #
+# Project 'pelican-installer'                                                        #
 #                                                                                    #
 # Copyright (C) 2018 - 2024, Vilhelm Prytz, <vilhelm@prytznet.se>                    #
 #                                                                                    #
@@ -21,10 +21,10 @@ set -e
 #   You should have received a copy of the GNU General Public License                #
 #   along with this program.  If not, see <https://www.gnu.org/licenses/>.           #
 #                                                                                    #
-# https://github.com/pterodactyl-installer/pterodactyl-installer/blob/master/LICENSE #
+# https://github.com/AnthonySSC/pelican-installer/blob/main/LICENSE                  #
 #                                                                                    #
-# This script is not associated with the official Pterodactyl Project.               #
-# https://github.com/pterodactyl-installer/pterodactyl-installer                     #
+# This script is not associated with the official Pelican Project.                   #
+# https://github.com/AnthonySSC/pelican-installer                                    #
 #                                                                                    #
 ######################################################################################
 
@@ -43,11 +43,11 @@ FQDN="${FQDN:-localhost}"
 
 # Default MySQL credentials
 MYSQL_DB="${MYSQL_DB:-panel}"
-MYSQL_USER="${MYSQL_USER:-pterodactyl}"
+MYSQL_USER="${MYSQL_USER:-pelican}"
 MYSQL_PASSWORD="${MYSQL_PASSWORD:-$(gen_passwd 64)}"
 
 # Environment
-timezone="${timezone:-Europe/Stockholm}"
+timezone="${timezone:-America/New_York}"
 
 # Assume SSL, will fetch different config if true
 ASSUME_SSL="${ASSUME_SSL:-false}"
@@ -60,8 +60,6 @@ CONFIGURE_FIREWALL="${CONFIGURE_FIREWALL:-false}"
 email="${email:-}"
 user_email="${user_email:-}"
 user_username="${user_username:-}"
-user_firstname="${user_firstname:-}"
-user_lastname="${user_lastname:-}"
 user_password="${user_password:-}"
 
 if [[ -z "${email}" ]]; then
@@ -79,16 +77,6 @@ if [[ -z "${user_username}" ]]; then
   exit 1
 fi
 
-if [[ -z "${user_firstname}" ]]; then
-  error "User firstname is required"
-  exit 1
-fi
-
-if [[ -z "${user_lastname}" ]]; then
-  error "User lastname is required"
-  exit 1
-fi
-
 if [[ -z "${user_password}" ]]; then
   error "User password is required"
   exit 1
@@ -103,9 +91,9 @@ install_composer() {
 }
 
 ptdl_dl() {
-  output "Downloading pterodactyl panel files .. "
-  mkdir -p /var/www/pterodactyl
-  cd /var/www/pterodactyl || exit
+  output "Downloading pelican panel files .. "
+  mkdir -p /var/www/pelican
+  cd /var/www/pelican || exit
 
   curl -Lo panel.tar.gz "$PANEL_DL_URL"
   tar -xzvf panel.tar.gz
@@ -113,7 +101,7 @@ ptdl_dl() {
 
   cp .env.example .env
 
-  success "Downloaded pterodactyl panel files!"
+  success "Downloaded pelican panel files!"
 }
 
 install_composer_deps() {
@@ -136,19 +124,18 @@ configure() {
 
   # Fill in environment:setup automatically
   php artisan p:environment:setup \
-    --author="$email" \
     --url="$app_url" \
-    --timezone="$timezone" \
     --cache="redis" \
     --session="redis" \
     --queue="redis" \
-    --redis-host="localhost" \
+    --redis-host="127.0.0.1" \
     --redis-pass="null" \
     --redis-port="6379" \
     --settings-ui=true
 
   # Fill in environment:database credentials automatically
   php artisan p:environment:database \
+    --driver="mysql" \
     --host="127.0.0.1" \
     --port="3306" \
     --database="$MYSQL_DB" \
@@ -162,8 +149,6 @@ configure() {
   php artisan p:user:make \
     --email="$user_email" \
     --username="$user_username" \
-    --name-first="$user_firstname" \
-    --name-last="$user_lastname" \
     --password="$user_password" \
     --admin=1
 
@@ -188,30 +173,30 @@ insert_cronjob() {
 
   crontab -l | {
     cat
-    output "* * * * php /var/www/pterodactyl/artisan schedule:run >> /dev/null 2>&1"
+    output "* * * * php /var/www/pelican/artisan schedule:run >> /dev/null 2>&1"
   } | crontab -
 
   success "Cronjob installed!"
 }
 
-install_pteroq() {
-  output "Installing pteroq service.."
+install_pelicanq() {
+  output "Installing pelicanq service.."
 
-  curl -o /etc/systemd/system/pteroq.service "$GITHUB_URL"/configs/pteroq.service
+  curl -o /etc/systemd/system/pelican.service "$GITHUB_URL"/configs/pelican.service
 
   case "$OS" in
   debian | ubuntu)
-    sed -i -e "s@<user>@www-data@g" /etc/systemd/system/pteroq.service
+    sed -i -e "s@<user>@www-data@g" /etc/systemd/system/pelican.service
     ;;
   rocky | almalinux)
-    sed -i -e "s@<user>@nginx@g" /etc/systemd/system/pteroq.service
+    sed -i -e "s@<user>@nginx@g" /etc/systemd/system/pelican.service
     ;;
   esac
 
-  systemctl enable pteroq.service
-  systemctl start pteroq
+  systemctl enable pelican.service
+  systemctl start pelican
 
-  success "Installed pteroq!"
+  success "Installed pelicanq!"
 }
 
 # -------- OS specific install functions ------- #
@@ -239,7 +224,7 @@ selinux_allow() {
 }
 
 php_fpm_conf() {
-  curl -o /etc/php-fpm.d/www-pterodactyl.conf "$GITHUB_URL"/configs/www-pterodactyl.conf
+  curl -o /etc/php-fpm.d/www-pelican.conf "$GITHUB_URL"/configs/www-pelican.conf
 
   systemctl enable php-fpm
   systemctl start php-fpm
@@ -252,7 +237,7 @@ ubuntu_dep() {
   # Add Ubuntu universe repo
   add-apt-repository universe -y
 
-  # Add PPA for PHP (we need 8.1)
+  # Add PPA for PHP (we need 8.3)
   LC_ALL=C.UTF-8 add-apt-repository -y ppa:ondrej/php
 }
 
@@ -260,7 +245,7 @@ debian_dep() {
   # Install deps for adding repos
   install_packages "dirmngr ca-certificates apt-transport-https lsb-release"
 
-  # Install PHP 8.1 using sury's repo
+  # Install PHP 8.3 using sury's repo
   curl -o /etc/apt/trusted.gpg.d/php.gpg https://packages.sury.org/php/apt.gpg
   echo "deb https://packages.sury.org/php/ $(lsb_release -sc) main" | tee /etc/apt/sources.list.d/php.list
 }
@@ -270,9 +255,9 @@ alma_rocky_dep() {
   install_packages "policycoreutils selinux-policy selinux-policy-targeted \
     setroubleshoot-server setools setools-console mcstrans"
 
-  # add remi repo (php8.1)
+  # add remi repo (php8.3)
   install_packages "epel-release http://rpms.remirepo.net/enterprise/remi-release-$OS_VER_MAJOR.rpm"
-  dnf module enable -y php:remi-8.1
+  dnf module enable -y php:remi-8.3
 }
 
 dep_install() {
@@ -291,7 +276,7 @@ dep_install() {
     update_repos
 
     # Install dependencies
-    install_packages "php8.1 php8.1-{cli,common,gd,mysql,mbstring,bcmath,xml,fpm,curl,zip} \
+    install_packages "php8.3 php8.3-{cli,common,gd,mysql,mbstring,bcmath,xml,fpm,curl,zip,redis,intl,sqlite3} \
       mariadb-common mariadb-server mariadb-client \
       nginx \
       redis-server \
@@ -305,7 +290,7 @@ dep_install() {
     alma_rocky_dep
 
     # Install dependencies
-    install_packages "php php-{common,fpm,cli,json,mysqlnd,mcrypt,gd,mbstring,pdo,zip,bcmath,dom,opcache,posix} \
+    install_packages "php php-{common,fpm,cli,json,mysqlnd,mcrypt,gd,mbstring,pdo,zip,bcmath,dom,opcache,posix,redis,intl,sqlite3} \
       mariadb mariadb-server \
       nginx \
       redis \
@@ -377,12 +362,12 @@ configure_nginx() {
 
   case "$OS" in
   ubuntu | debian)
-    PHP_SOCKET="/run/php/php8.1-fpm.sock"
+    PHP_SOCKET="/run/php/php8.3-fpm.sock"
     CONFIG_PATH_AVAIL="/etc/nginx/sites-available"
     CONFIG_PATH_ENABL="/etc/nginx/sites-enabled"
     ;;
   rocky | almalinux)
-    PHP_SOCKET="/var/run/php-fpm/pterodactyl.sock"
+    PHP_SOCKET="/var/run/php-fpm/pelican.sock"
     CONFIG_PATH_AVAIL="/etc/nginx/conf.d"
     CONFIG_PATH_ENABL="$CONFIG_PATH_AVAIL"
     ;;
@@ -390,15 +375,15 @@ configure_nginx() {
 
   rm -rf "$CONFIG_PATH_ENABL"/default
 
-  curl -o "$CONFIG_PATH_AVAIL"/pterodactyl.conf "$GITHUB_URL"/configs/$DL_FILE
+  curl -o "$CONFIG_PATH_AVAIL"/pelican.conf "$GITHUB_URL"/configs/$DL_FILE
 
-  sed -i -e "s@<domain>@${FQDN}@g" "$CONFIG_PATH_AVAIL"/pterodactyl.conf
+  sed -i -e "s@<domain>@${FQDN}@g" "$CONFIG_PATH_AVAIL"/pelican.conf
 
-  sed -i -e "s@<php_socket>@${PHP_SOCKET}@g" "$CONFIG_PATH_AVAIL"/pterodactyl.conf
+  sed -i -e "s@<php_socket>@${PHP_SOCKET}@g" "$CONFIG_PATH_AVAIL"/pelican.conf
 
   case "$OS" in
   ubuntu | debian)
-    ln -sf "$CONFIG_PATH_AVAIL"/pterodactyl.conf "$CONFIG_PATH_ENABL"/pterodactyl.conf
+    ln -sf "$CONFIG_PATH_AVAIL"/pelican.conf "$CONFIG_PATH_ENABL"/pelican.conf
     ;;
   esac
 
@@ -422,7 +407,7 @@ perform_install() {
   configure
   set_folder_permissions
   insert_cronjob
-  install_pteroq
+  install_pelicanq
   configure_nginx
   [ "$CONFIGURE_LETSENCRYPT" == true ] && letsencrypt
 

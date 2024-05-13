@@ -1,12 +1,12 @@
 [Unit]
-Description=Pterodactyl Wings Daemon
+Description=Wings Daemon
 After=docker.service
 Requires=docker.service
 PartOf=docker.service
 
 [Service]
 User=root
-WorkingDirectory=/etc/pterodactyl
+WorkingDirectory=/etc/pelican
 LimitNOFILE=4096
 PIDFile=/var/run/wings/daemon.pid
 ExecStart=/usr/local/bin/wings

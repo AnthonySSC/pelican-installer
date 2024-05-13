@@ -1,8 +1,8 @@
-# Pterodactyl Queue Worker File
+# Pelican Queue File
 # ----------------------------------
 
 [Unit]
-Description=Pterodactyl Queue Worker
+Description=Pelican Queue Worker
 After=redis-server.service
 
 [Service]
@@ -11,7 +11,7 @@ After=redis-server.service
 User=<user>
 Group=<user>
 Restart=always
-ExecStart=/usr/bin/php /var/www/pterodactyl/artisan queue:work --queue=high,standard,low --sleep=3 --tries=3
+ExecStart=/usr/bin/php /var/www/pelican/artisan queue:work --queue=high,standard,low --sleep=3 --tries=3
 
 [Install]
 WantedBy=multi-user.target

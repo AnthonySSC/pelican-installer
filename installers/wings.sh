@@ -4,7 +4,7 @@ set -e
 
 ######################################################################################
 #                                                                                    #
-# Project 'pterodactyl-installer'                                                    #
+# Project 'pelican-installer'                                                        #
 #                                                                                    #
 # Copyright (C) 2018 - 2024, Vilhelm Prytz, <vilhelm@prytznet.se>                    #
 #                                                                                    #
@@ -21,10 +21,10 @@ set -e
 #   You should have received a copy of the GNU General Public License                #
 #   along with this program.  If not, see <https://www.gnu.org/licenses/>.           #
 #                                                                                    #
-# https://github.com/pterodactyl-installer/pterodactyl-installer/blob/master/LICENSE #
+# https://github.com/AnthonySSC/pelican-installer/blob/main/LICENSE                  #
 #                                                                                    #
-# This script is not associated with the official Pterodactyl Project.               #
-# https://github.com/pterodactyl-installer/pterodactyl-installer                     #
+# This script is not associated with the official Pelican Project.                   #
+# https://github.com/AnthonySSC/pelican-installer                                    #
 #                                                                                    #
 ######################################################################################
 
@@ -52,7 +52,7 @@ EMAIL="${EMAIL:-}"
 CONFIGURE_DBHOST="${CONFIGURE_DBHOST:-false}"
 CONFIGURE_DB_FIREWALL="${CONFIGURE_DB_FIREWALL:-false}"
 MYSQL_DBHOST_HOST="${MYSQL_DBHOST_HOST:-127.0.0.1}"
-MYSQL_DBHOST_USER="${MYSQL_DBHOST_USER:-pterodactyluser}"
+MYSQL_DBHOST_USER="${MYSQL_DBHOST_USER:-pelicanuser}"
 MYSQL_DBHOST_PASSWORD="${MYSQL_DBHOST_PASSWORD:-}"
 
 if [[ $CONFIGURE_DBHOST == true && -z "${MYSQL_DBHOST_PASSWORD}" ]]; then
@@ -112,14 +112,14 @@ dep_install() {
 }
 
 ptdl_dl() {
-  echo "* Downloading Pterodactyl Wings.. "
+  echo "* Downloading Pelican Wings.. "
 
-  mkdir -p /etc/pterodactyl
+  mkdir -p /etc/pelican
   curl -L -o /usr/local/bin/wings "$WINGS_DL_BASE_URL$ARCH"
 
   chmod u+x /usr/local/bin/wings
 
-  success "Pterodactyl Wings downloaded successfully"
+  success "Pelican Wings downloaded successfully"
 }
 
 systemd_file() {
@@ -191,7 +191,7 @@ configure_mysql() {
 # --------------- Main functions --------------- #
 
 perform_install() {
-  output "Installing pterodactyl wings.."
+  output "Installing pelican wings.."
   dep_install
   ptdl_dl
   systemd_file
